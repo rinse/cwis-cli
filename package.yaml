@@ -1,0 +1,69 @@
+name:                cwis-cli
+version:             0.1.0.0
+github:              "rinse/cwis-cli"
+license:             BSD3
+author:              "rinse"
+maintainer:          "rinse@neko2.net"
+copyright:           "2019 rinse"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            A cli interface for CentreWare Internet Services
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/rinse/cwis-cli#readme>
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wredundant-constraints
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+
+executables:
+  cwis-cli-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - cwis-cli
+
+tests:
+  cwis-cli-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - cwis-cli
+    - hspec >= 2.7.0
+
+  cwis-cli-doctest:
+    main:                Spec.hs
+    source-dirs:         doctest
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - cwis-cli
+    - doctest >= 0.16
+    - doctest-discover >= 0.2.0
+    - QuickCheck >= 2.13

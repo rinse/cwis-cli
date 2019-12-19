@@ -28,6 +28,13 @@ ghc-options:
 
 dependencies:
 - base >= 4.7 && < 5
+- bytestring >= 0.10
+- http-client >= 0.6
+- req >= 2.1
+- safe-exceptions >= 0.1
+- scalpel-core >= 0.6
+- tagsoup >= 0.14
+- text >= 1.2
 
 library:
   source-dirs: src

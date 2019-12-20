@@ -11,7 +11,7 @@ import           System.IO
 
 
 toDetail :: Args -> P.PrintDetail
-toDetail args = sp { P.cpn = args ^. nCopies }
+toDetail args = sp & P.cpn .~ (args ^. nCopies)
     where
     sp = P.securityPrint (args ^. username) (args ^. password) (args ^. filepath)
 

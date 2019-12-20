@@ -1,6 +1,7 @@
-{- |__WIP__
-    An arguments for printer.
-    It should be compatible with optparse-applicative.
+{- |__WIP__.
+
+    It is not a good idea to export the contructor of PrintDetail.
+    Also, it seems that 'toParts' should not be here.
 -}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -17,6 +18,7 @@ import qualified Data.Text.Encoding                    as T
 import           Network.HTTP.Client.MultipartFormData (Part, partBS, partFile)
 
 
+-- |An arguments for printer.
 data PrintDetail = PrintDetail
     { cpn   :: Int      -- ^CPN 部数
     , colt  :: String   -- ^COLT ソート(1部ごと)
@@ -42,9 +44,11 @@ data PrintDetail = PrintDetail
 defaultPrintDetail :: PrintDetail
 defaultPrintDetail = PrintDetail 1 "NO" "NO" "AUTO" "NO" "NO" "MT" "AUTO" "NUL" "NUL" "IMP" "" "" "" "" "" "" "on" ""
 
-securityPrint :: String   -- ^userid
-              -> String   -- ^password
-              -> FilePath -- ^file
+
+-- |Commit a security print
+securityPrint :: String   -- ^Userid
+              -> String   -- ^Password
+              -> FilePath -- ^Path to file
               -> PrintDetail
 securityPrint username password filepath = defaultPrintDetail
     { del   = "SECP"
@@ -54,6 +58,10 @@ securityPrint username password filepath = defaultPrintDetail
     , file  = filepath
     }
 
+
+{- |Convert a 'PrintDetail' to multiparts.
+    This is used by 'Cwis.OrderPrint'.
+-}
 toParts :: PrintDetail -> [Part]
 toParts = ap toParts' . pure
 

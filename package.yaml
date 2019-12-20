@@ -30,6 +30,8 @@ dependencies:
 - base >= 4.7 && < 5
 - bytestring >= 0.10
 - http-client >= 0.6
+- lens >= 4.17
+- optparse-applicative >= 0.14
 - req >= 2.1
 - safe-exceptions >= 0.1
 - scalpel-core >= 0.6

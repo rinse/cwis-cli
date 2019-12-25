@@ -9,17 +9,17 @@ import           Test.Hspec
 
 spec :: Spec
 spec = do
-    describe "scrapeHTML" $
-        it "scrapes HTML and get a message from a printer." $ do
-            actual <- scrapeHTML inputScrapeHTML
+    describe "scrapeResponse" $
+        it "scrapes Response and get a message from a printer." $ do
+            actual <- scrapeResponse inputScrapeResponse
             actual `shouldBe` "リクエストは実行されました。"
 
-    describe "scrapeHTML'" $
-        it "scrapes HTML and get a message from a printer." $
-            scrapeHTML' inputScrapeHTML `shouldBe` Right "リクエストは実行されました。"
+    describe "scrapeResponse'" $
+        it "scrapes Response and get a message from a printer." $
+            scrapeResponse' inputScrapeResponse `shouldBe` Right "リクエストは実行されました。"
 
-inputScrapeHTML :: T.Text
-inputScrapeHTML = T.unlines
+inputScrapeResponse :: T.Text
+inputScrapeResponse = T.unlines
     [ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\">"
     , "<HTML>"
     , "<HEAD>"

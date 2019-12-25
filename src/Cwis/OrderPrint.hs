@@ -33,7 +33,7 @@ uploadFile :: (MonadIO m, MonadThrow m)
 uploadFile hostname detail =
     runRequest hostname detail
     >>= decodeUtf8Response
-    >>= scrapeHTML
+    >>= scrapeResponse
 
 -- |Runs the req.
 runRequest :: MonadIO m => T.Text -> P.PrintDetail -> m BsResponse

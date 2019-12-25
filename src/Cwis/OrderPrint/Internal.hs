@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Cwis.OrderPrint.Internal
-    ( scrapeHTML
-    , scrapeHTML'
+    ( scrapeResponse
+    , scrapeResponse'
     , ScrapeFailedException (..)
     ) where
 
@@ -15,12 +15,12 @@ import           Text.StringLike
 
 
 -- |Scrapes html. The return value is something like the following.
-scrapeHTML :: MonadThrow m => T.Text -> m T.Text
-scrapeHTML = (throw ||| return) . scrapeHTML'
+scrapeResponse :: MonadThrow m => T.Text -> m T.Text
+scrapeResponse = (throw ||| return) . scrapeResponse'
 
--- |A checked variety of 'scrapeHTML'.
-scrapeHTML' :: T.Text -> Either ScrapeFailedException T.Text
-scrapeHTML' = right pretty . scrapeRoughly
+-- |A checked variety of 'scrapeResponse'.
+scrapeResponse' :: T.Text -> Either ScrapeFailedException T.Text
+scrapeResponse' = right pretty . scrapeRoughly
 
 -- |Scrape the response roughly.
 scrapeRoughly :: StringLike str => str -> Either ScrapeFailedException str

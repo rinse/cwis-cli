@@ -48,7 +48,12 @@ import           Data.Foldable       (traverse_)
     your username and password into the printer to print the document.
     It helps to keep your document safe.
 -}
-data PrintMethod = SecurityPrint String String FilePath CommonOptions
+data PrintMethod
+    = SecurityPrint
+        String          -- ^Username for security-print.
+        String          -- ^Password for security-print.
+        FilePath        -- ^Filepath of the file.
+        CommonOptions   -- ^Options.
     deriving (Show, Eq)
 
 -- |A Lens for 'CommonOptions' of 'PrintMethod'.
@@ -102,7 +107,13 @@ data PaperType = TypeAuto
 
 makeLenses ''CommonOptions
 
--- |Makes a 'PrintMethod' with default common options.
+{- |Makes a 'PrintMethod' with default common options.
+    Tipically, this is used with 'PrintMethodBuilder'.
+
+    @runPrintMethodBuilder (defaultSecurityPrint u p f) $ do
+    ..
+    @
+-}
 defaultSecurityPrint
     :: String       -- ^Username for security-print.
     -> String       -- ^Password for security-print.
@@ -111,7 +122,17 @@ defaultSecurityPrint
 defaultSecurityPrint username password file =
     SecurityPrint username password file def
 
--- |A builder for 'PrintMethod'.
+{- |A builder for 'PrintMethod'.
+    It allows you to construct 'PrintMethod' monadically.
+
+    @'runPrintMethodBuilder' ('defaultSecurityPrint' u p f) $ do
+    n <- liftIO $ lookupEnv "numCopies"
+    'numCopiesMaybe' $ (n >>= readMaybe) '<|>' somwNumCopiesMaybe
+    'doSort' True
+    'onBothSides' True
+    ..
+    @
+-}
 newtype PrintMethodBuilderT m a = PrintMethodBuilderT (StateT PrintMethod m a)
     deriving (Functor, Applicative, Monad, MonadTrans)
 
@@ -121,10 +142,10 @@ runPrintMethodBuilderT :: PrintMethod
                        -> m (a, PrintMethod)
 runPrintMethodBuilderT p (PrintMethodBuilderT s) = runStateT s p
 
--- |A builder for 'PrintMethod'.
+-- |A pure variant of 'PrintMethodBuilderT'.
 type PrintMethodBuilder = PrintMethodBuilderT Identity
 
--- |Runs the builder and constructs 'PrintMethod'.
+-- |A pure runner for 'PrintMethodBuilder'.
 runPrintMethodBuilder :: PrintMethod
                        -> PrintMethodBuilder a
                        -> (a, PrintMethod)

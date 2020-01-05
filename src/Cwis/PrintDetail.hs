@@ -1,31 +1,80 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
 
 module Cwis.PrintDetail
-    ( PrintDetail
-    , cpn           -- |It supplies the number of copies for 'PrintDetail'
-    , securityPrint
-    , toParts
+    ( methodToParts
     ) where
 
-import           Control.Lens
 import           Control.Monad
+import           Cwis.PrintMethod
 import qualified Data.ByteString                       as B
 import qualified Data.Text                             as T
 import qualified Data.Text.Encoding                    as T
 import           Network.HTTP.Client.MultipartFormData (Part, partBS, partFile)
 
 
-{- |An arguments for printer.
+-- |Converts 'PrintMethod' to multiparts.
+methodToParts :: PrintMethod -> [Part]
+methodToParts = detailToParts . methodToDetail
 
-    Use a smart constructor to get a 'PrintDetail'.
-    Use 'Lens' operators to give options.
+-- |Converts 'PrintMethod' to 'PrintDetail' which represents lower-layerd arguments.
+methodToDetail :: PrintMethod -> PrintDetail
+methodToDetail (SecurityPrint username password file (CommonOptions cpn colt dup clr stpl pnch ot it siz med)) =
+    PrintDetail
+        (numCopiesToDetail cpn)
+        (doSortToDetail colt)
+        (onBothSidesToDetail dup)
+        (colourToDetail clr)
+        (withStapleToDetail stpl)
+        (withPunchToDetail pnch)
+        (outputTrayToDetail ot)
+        (inputTrayToDetail it)
+        (paperSizeToDetail siz)
+        (paperTypeToDetail med)
+        "SECP"  -- for security-prints
+        ""  -- ppusr
+        ""  -- hour
+        ""  -- min
+        username
+        password
+        password
+        "on"  -- espid
+        file
 
-    ==== __Examples__
-    To have a 'PrintDetail' for 2 copies of security print:
+numCopiesToDetail :: Int -> Int
+numCopiesToDetail = id
 
-    @securityPrint "name" "password" "path to file" & cpn .~ 2@
--}
+doSortToDetail, onBothSidesToDetail :: Bool -> String
+doSortToDetail True  = "YES"
+doSortToDetail False = "NO"
+
+onBothSidesToDetail = doSortToDetail
+
+colourToDetail :: Colour -> String
+colourToDetail ColourAuto = "Auto"
+
+withStapleToDetail, withPunchToDetail :: Bool -> String
+withStapleToDetail = doSortToDetail
+withPunchToDetail = doSortToDetail
+
+outputTrayToDetail :: OutputTray -> String
+outputTrayToDetail OutputTray   = "MT"
+outputTrayToDetail FinisherTray = "FIN"
+
+inputTrayToDetail :: InputTray -> String
+inputTrayToDetail InputTrayAuto = "AUTO"
+inputTrayToDetail Tray1         = "T1"
+inputTrayToDetail Tray2         = "T2"
+inputTrayToDetail Tray3         = "T3"
+inputTrayToDetail Tray4         = "T4"
+inputTrayToDetail ManualFeed    = "SMH"
+
+paperSizeToDetail :: PaperSize -> String
+paperSizeToDetail SizeAuto = "NUL"
+
+paperTypeToDetail :: PaperType -> String
+paperTypeToDetail TypeAuto = "NUL"
+
+-- |Primitive arguments for printer.
 data PrintDetail = PrintDetail
     { _cpn   :: Int      -- ^CPN 部数
     , _colt  :: String   -- ^COLT ソート(1部ごと)
@@ -47,54 +96,34 @@ data PrintDetail = PrintDetail
     , _espid :: String   -- ^ESPID a hidden input
     , _file  :: FilePath -- ^FILE ファイル
     }
-makeLenses ''PrintDetail
 
-defaultPrintDetail :: PrintDetail
-defaultPrintDetail = PrintDetail 1 "NO" "NO" "AUTO" "NO" "NO" "MT" "AUTO" "NUL" "NUL" "IMP" "" "" "" "" "" "" "on" ""
+-- |Convert a 'PrintDetail' to multiparts.
+detailToParts :: PrintDetail -> [Part]
+detailToParts = ap detailToParts' . pure
 
-{- |For safe construction of 'PrintDetail'.
-    It supplies a PrintDetail for a security print.
--}
-securityPrint :: String   -- ^Userid
-              -> String   -- ^Password
-              -> FilePath -- ^Path to file
-              -> PrintDetail
-securityPrint username password filepath = defaultPrintDetail
-    { _del   = "SECP"
-    , _spusr = username
-    , _spid  = password
-    , _rspid = password
-    , _file  = filepath
-    }
-
-{- |Convert a 'PrintDetail' to multiparts.
-    This is used by 'Cwis.OrderPrint'.
--}
-toParts :: PrintDetail -> [Part]
-toParts = ap toParts' . pure
-
-toParts' :: [PrintDetail -> Part]
-toParts' =
-    [ partBS "CPN"   . packEncodeUtf8 . show . view cpn
-    , partBS "COLT"  . packEncodeUtf8 . view colt
-    , partBS "DUP"   . packEncodeUtf8 . view dup
-    , partBS "CLR"   . packEncodeUtf8 . view clr
-    , partBS "STPL"  . packEncodeUtf8 . view stpl
-    , partBS "PNCH"  . packEncodeUtf8 . view pnch
-    , partBS "OT"    . packEncodeUtf8 . view ot
-    , partBS "IT"    . packEncodeUtf8 . view it
-    , partBS "SIZ"   . packEncodeUtf8 . view siz
-    , partBS "MED"   . packEncodeUtf8 . view med
-    , partBS "DEL"   . packEncodeUtf8 . view del
-    , partBS "PPUSR" . packEncodeUtf8 . view ppusr
-    , partBS "HOUR"  . packEncodeUtf8 . view hour
-    , partBS "MIN"   . packEncodeUtf8 . view Cwis.PrintDetail.min
-    , partBS "SPUSR" . packEncodeUtf8 . view spusr
-    , partBS "SPID"  . packEncodeUtf8 . view spid
-    , partBS "RSPID" . packEncodeUtf8 . view rspid
-    , partBS "ESPID" . packEncodeUtf8 . view espid
-    , partFile "FILE" . view file
+detailToParts' :: [PrintDetail -> Part]
+detailToParts' =
+    [ partBS "CPN"   . packEncodeUtf8 . show . _cpn
+    , partBS "COLT"  . packEncodeUtf8 . _colt
+    , partBS "DUP"   . packEncodeUtf8 . _dup
+    , partBS "CLR"   . packEncodeUtf8 . _clr
+    , partBS "STPL"  . packEncodeUtf8 . _stpl
+    , partBS "PNCH"  . packEncodeUtf8 . _pnch
+    , partBS "OT"    . packEncodeUtf8 . _ot
+    , partBS "IT"    . packEncodeUtf8 . _it
+    , partBS "SIZ"   . packEncodeUtf8 . _siz
+    , partBS "MED"   . packEncodeUtf8 . _med
+    , partBS "DEL"   . packEncodeUtf8 . _del
+    , partBS "PPUSR" . packEncodeUtf8 . _ppusr
+    , partBS "HOUR"  . packEncodeUtf8 . _hour
+    , partBS "MIN"   . packEncodeUtf8 . _min
+    , partBS "SPUSR" . packEncodeUtf8 . _spusr
+    , partBS "SPID"  . packEncodeUtf8 . _spid
+    , partBS "RSPID" . packEncodeUtf8 . _rspid
+    , partBS "ESPID" . packEncodeUtf8 . _espid
+    , partFile "FILE" . _file
     ]
 
+-- |Converts given 'String' to strict 'ByteString' encoding to utf-8.
 packEncodeUtf8 :: String -> B.ByteString
 packEncodeUtf8 = T.encodeUtf8 . T.pack

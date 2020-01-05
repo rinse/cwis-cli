@@ -8,7 +8,8 @@ import           Control.Arrow            ((|||))
 import           Control.Exception.Safe
 import           Control.Monad.IO.Class
 import           Cwis.OrderPrint.Internal
-import qualified Cwis.PrintDetail         as P
+import           Cwis.PrintDetail
+import           Cwis.PrintMethod
 import qualified Data.Text                as T
 import qualified Data.Text.Encoding       as T
 import qualified Data.Text.Encoding.Error as T
@@ -28,21 +29,21 @@ import           Network.HTTP.Req
 -}
 uploadFile :: (MonadIO m, MonadThrow m)
            => T.Text        -- ^Host name
-           -> P.PrintDetail -- ^Detail of the request
+           -> PrintMethod   -- ^Detail of the request
            -> m T.Text      -- ^Message from the server
-uploadFile hostname detail =
-    runRequest hostname detail
+uploadFile hostname method =
+    runRequest hostname method
     >>= decodeUtf8Response
     >>= scrapeResponse
 
 -- |Runs the req.
-runRequest :: MonadIO m => T.Text -> P.PrintDetail -> m BsResponse
+runRequest :: MonadIO m => T.Text -> PrintMethod -> m BsResponse
 runRequest = (fmap . fmap) (runReq defaultHttpConfig) request
 
 -- |Constructs a req monad.
-request :: MonadHttp m => T.Text -> P.PrintDetail -> m BsResponse
-request hostName detail = do
-    reqBody <- reqBodyMultipart $ P.toParts detail
+request :: MonadHttp m => T.Text -> PrintMethod -> m BsResponse
+request hostName method = do
+    reqBody <- reqBodyMultipart $ methodToParts method
     req POST url reqBody bsResponse mempty
     where
     url = http hostName /: "UPLPRT.cmd"

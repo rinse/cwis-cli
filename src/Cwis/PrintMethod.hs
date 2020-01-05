@@ -15,20 +15,31 @@ module Cwis.PrintMethod
     , PrintMethodBuilder
     , runPrintMethodBuilder
     , numCopies
+    , numCopiesMaybe
     , doSort
+    , doSortMaybe
     , onBothSides
+    , onBothSidesMaybe
     , colourMode
+    , colourModeMaybe
     , withStaple
+    , withStapleMaybe
     , withPunch
+    , withPunchMaybe
     , outputTray
+    , outputTrayMaybe
     , inputTray
+    , inputTrayMaybe
     , paperSize
+    , paperSizeMaybe
     , paperType
+    , paperTypeMaybe
     ) where
 
 import           Control.Lens
 import           Control.Monad.State
-import           Data.Default
+import           Data.Default        (Default, def)
+import           Data.Foldable       (traverse_)
 
 
 {- |A printing mode.
@@ -124,47 +135,87 @@ numCopies :: Monad m => Int -> PrintMethodBuilderT m ()
 numCopies n = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . cpn .~ n
 
+-- |Alternative variant of 'numCopies'.
+numCopiesMaybe :: (Monad m, Foldable t) => t Int -> PrintMethodBuilderT m ()
+numCopiesMaybe = traverse_ numCopies
+
 -- |An action which specifies if you want to sort your papers.
 doSort :: Monad m => Bool -> PrintMethodBuilderT m ()
 doSort b = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . colt .~ b
+
+-- |Alternative variant of 'doSort'.
+doSortMaybe :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+doSortMaybe = traverse_ doSort
 
 -- |An action which specifies if you want to print on the both sides.
 onBothSides :: Monad m => Bool -> PrintMethodBuilderT m ()
 onBothSides b = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . dup .~ b
 
+-- |Alternative variant of 'onBothSides'.
+onBothSidesMaybe :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+onBothSidesMaybe = traverse_ onBothSides
+
 -- |An action which specifies a colour mode.
 colourMode :: Monad m => Colour -> PrintMethodBuilderT m ()
 colourMode c = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . clr .~ c
+
+-- |Alternative variant of 'colourMode'.
+colourModeMaybe :: (Monad m, Foldable t) => t Colour -> PrintMethodBuilderT m ()
+colourModeMaybe = traverse_ colourMode
 
 -- |An action which specifies if you want to staple your documents.
 withStaple :: Monad m => Bool -> PrintMethodBuilderT m ()
 withStaple b = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . stpl .~ b
 
+-- |Alternative variant of 'withStaple'.
+withStapleMaybe :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+withStapleMaybe = traverse_ withStaple
+
 -- |An action which specifies if you want to punch your documents.
 withPunch :: Monad m => Bool -> PrintMethodBuilderT m ()
 withPunch b = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . pnch .~ b
+
+-- |Alternative variant of 'withPunch'.
+withPunchMaybe :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+withPunchMaybe = traverse_ withPunch
 
 -- |An action which specifies an output tray.
 outputTray :: Monad m => OutputTray -> PrintMethodBuilderT m ()
 outputTray o = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . ot .~ o
 
+-- |Alternative variant of 'outputTray'.
+outputTrayMaybe :: (Monad m, Foldable t) => t OutputTray -> PrintMethodBuilderT m ()
+outputTrayMaybe = traverse_ outputTray
+
 -- |An action which specifies an input tray.
 inputTray :: Monad m => InputTray -> PrintMethodBuilderT m ()
 inputTray i = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . it .~ i
+
+-- |Alternative variant of 'inputTray'.
+inputTrayMaybe :: (Monad m, Foldable t) => t InputTray -> PrintMethodBuilderT m ()
+inputTrayMaybe = traverse_ inputTray
 
 -- |An action which specifies a size of papers.
 paperSize :: Monad m => PaperSize -> PrintMethodBuilderT m ()
 paperSize s = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . siz .~ s
 
+-- |Alternative variant of 'paperSize'.
+paperSizeMaybe :: (Monad m, Foldable t) => t PaperSize -> PrintMethodBuilderT m ()
+paperSizeMaybe = traverse_ paperSize
+
 -- |An action which specifies a type of papers.
 paperType :: Monad m => PaperType -> PrintMethodBuilderT m ()
 paperType t = PrintMethodBuilderT $ modify $ \p ->
     p & commonOptions . med .~ t
+
+-- |Alternative variant of 'paperType'.
+paperTypeMaybe :: (Monad m, Foldable t) => t PaperType -> PrintMethodBuilderT m ()
+paperTypeMaybe = traverse_ paperType

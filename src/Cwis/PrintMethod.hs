@@ -20,25 +20,25 @@ module Cwis.PrintMethod
     , evalPrintMethodBuilder
     , execPrintMethodBuilder
     , numCopies
-    , numCopiesMaybe
+    , numCopies'
     , doSort
-    , doSortMaybe
+    , doSort'
     , onBothSides
-    , onBothSidesMaybe
+    , onBothSides'
     , colourMode
-    , colourModeMaybe
+    , colourMode'
     , withStaple
-    , withStapleMaybe
+    , withStaple'
     , withPunch
-    , withPunchMaybe
+    , withPunch'
     , outputTray
-    , outputTrayMaybe
+    , outputTray'
     , inputTray
-    , inputTrayMaybe
+    , inputTray'
     , paperSize
-    , paperSizeMaybe
+    , paperSize'
     , paperType
-    , paperTypeMaybe
+    , paperType'
     ) where
 
 import           Control.Lens
@@ -133,7 +133,7 @@ defaultSecurityPrint username password file =
 
     @'runPrintMethodBuilder' ('defaultSecurityPrint' u p f) $ do
     n <- liftIO $ lookupEnv "numCopies"
-    'numCopiesMaybe' $ (n >>= readMaybe) '<|>' somwNumCopiesMaybe
+    'numCopies'' $ somwNumCopiesMaybe '<|>' (n >>= readMaybe)
     'doSort' True
     'onBothSides' True
     ..
@@ -177,80 +177,80 @@ numCopies :: Monad m => Int -> PrintMethodBuilderT m ()
 numCopies = setParam cpn
 
 -- |Alternative variant of 'numCopies'.
-numCopiesMaybe :: (Monad m, Foldable t) => t Int -> PrintMethodBuilderT m ()
-numCopiesMaybe = traverse_ numCopies
+numCopies' :: (Monad m, Foldable t) => t Int -> PrintMethodBuilderT m ()
+numCopies' = traverse_ numCopies
 
 -- |An action which specifies if you want to sort your papers.
 doSort :: Monad m => Bool -> PrintMethodBuilderT m ()
 doSort = setParam colt
 
 -- |Alternative variant of 'doSort'.
-doSortMaybe :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
-doSortMaybe = traverse_ doSort
+doSort' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+doSort' = traverse_ doSort
 
 -- |An action which specifies if you want to print on the both sides.
 onBothSides :: Monad m => Bool -> PrintMethodBuilderT m ()
 onBothSides = setParam dup
 
 -- |Alternative variant of 'onBothSides'.
-onBothSidesMaybe :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
-onBothSidesMaybe = traverse_ onBothSides
+onBothSides' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+onBothSides' = traverse_ onBothSides
 
 -- |An action which specifies a colour mode.
 colourMode :: Monad m => Colour -> PrintMethodBuilderT m ()
 colourMode = setParam clr
 
 -- |Alternative variant of 'colourMode'.
-colourModeMaybe :: (Monad m, Foldable t) => t Colour -> PrintMethodBuilderT m ()
-colourModeMaybe = traverse_ colourMode
+colourMode' :: (Monad m, Foldable t) => t Colour -> PrintMethodBuilderT m ()
+colourMode' = traverse_ colourMode
 
 -- |An action which specifies if you want to staple your documents.
 withStaple :: Monad m => Bool -> PrintMethodBuilderT m ()
 withStaple = setParam stpl
 
 -- |Alternative variant of 'withStaple'.
-withStapleMaybe :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
-withStapleMaybe = traverse_ withStaple
+withStaple' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+withStaple' = traverse_ withStaple
 
 -- |An action which specifies if you want to punch your documents.
 withPunch :: Monad m => Bool -> PrintMethodBuilderT m ()
 withPunch = setParam pnch
 
 -- |Alternative variant of 'withPunch'.
-withPunchMaybe :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
-withPunchMaybe = traverse_ withPunch
+withPunch' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+withPunch' = traverse_ withPunch
 
 -- |An action which specifies an output tray.
 outputTray :: Monad m => OutputTray -> PrintMethodBuilderT m ()
 outputTray = setParam ot
 
 -- |Alternative variant of 'outputTray'.
-outputTrayMaybe :: (Monad m, Foldable t) => t OutputTray -> PrintMethodBuilderT m ()
-outputTrayMaybe = traverse_ outputTray
+outputTray' :: (Monad m, Foldable t) => t OutputTray -> PrintMethodBuilderT m ()
+outputTray' = traverse_ outputTray
 
 -- |An action which specifies an input tray.
 inputTray :: Monad m => InputTray -> PrintMethodBuilderT m ()
 inputTray = setParam it
 
 -- |Alternative variant of 'inputTray'.
-inputTrayMaybe :: (Monad m, Foldable t) => t InputTray -> PrintMethodBuilderT m ()
-inputTrayMaybe = traverse_ inputTray
+inputTray' :: (Monad m, Foldable t) => t InputTray -> PrintMethodBuilderT m ()
+inputTray' = traverse_ inputTray
 
 -- |An action which specifies a size of papers.
 paperSize :: Monad m => PaperSize -> PrintMethodBuilderT m ()
 paperSize = setParam siz
 
 -- |Alternative variant of 'paperSize'.
-paperSizeMaybe :: (Monad m, Foldable t) => t PaperSize -> PrintMethodBuilderT m ()
-paperSizeMaybe = traverse_ paperSize
+paperSize' :: (Monad m, Foldable t) => t PaperSize -> PrintMethodBuilderT m ()
+paperSize' = traverse_ paperSize
 
 -- |An action which specifies a type of papers.
 paperType :: Monad m => PaperType -> PrintMethodBuilderT m ()
 paperType = setParam med
 
 -- |Alternative variant of 'paperType'.
-paperTypeMaybe :: (Monad m, Foldable t) => t PaperType -> PrintMethodBuilderT m ()
-paperTypeMaybe = traverse_ paperType
+paperType' :: (Monad m, Foldable t) => t PaperType -> PrintMethodBuilderT m ()
+paperType' = traverse_ paperType
 
 -- |A helper for actions which specifies a parameter on 'PrintMethodBuilderT'.
 setParam :: Monad m => Lens' CommonOptions a -> a -> PrintMethodBuilderT m ()

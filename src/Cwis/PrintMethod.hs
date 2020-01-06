@@ -13,8 +13,12 @@ module Cwis.PrintMethod
     , defaultSecurityPrint
     , PrintMethodBuilderT
     , runPrintMethodBuilderT
+    , evalPrintMethodBuilderT
+    , execPrintMethodBuilderT
     , PrintMethodBuilder
     , runPrintMethodBuilder
+    , evalPrintMethodBuilder
+    , execPrintMethodBuilder
     , numCopies
     , numCopiesMaybe
     , doSort
@@ -144,6 +148,12 @@ runPrintMethodBuilderT :: PrintMethod
                        -> m (a, PrintMethod)
 runPrintMethodBuilderT p (PrintMethodBuilderT s) = runStateT s p
 
+execPrintMethodBuilderT :: Monad m => PrintMethod -> PrintMethodBuilderT m a -> m PrintMethod
+execPrintMethodBuilderT p (PrintMethodBuilderT s) = execStateT s p
+
+evalPrintMethodBuilderT :: Monad m => PrintMethod -> PrintMethodBuilderT m a -> m a
+evalPrintMethodBuilderT p (PrintMethodBuilderT s) = evalStateT s p
+
 -- |A pure variant of 'PrintMethodBuilderT'.
 type PrintMethodBuilder = PrintMethodBuilderT Identity
 
@@ -152,6 +162,12 @@ runPrintMethodBuilder :: PrintMethod
                        -> PrintMethodBuilder a
                        -> (a, PrintMethod)
 runPrintMethodBuilder = fmap runIdentity . runPrintMethodBuilderT
+
+execPrintMethodBuilder :: PrintMethod -> PrintMethodBuilder a -> PrintMethod
+execPrintMethodBuilder p (PrintMethodBuilderT s) = execState s p
+
+evalPrintMethodBuilder :: PrintMethod -> PrintMethodBuilder a -> a
+evalPrintMethodBuilder p (PrintMethodBuilderT s) = evalState s p
 
 -- |An action which specifies the number of copies.
 numCopies :: Monad m => Int -> PrintMethodBuilderT m ()

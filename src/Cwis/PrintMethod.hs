@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE TemplateHaskell            #-}
 
 module Cwis.PrintMethod
@@ -154,90 +155,91 @@ runPrintMethodBuilder = fmap runIdentity . runPrintMethodBuilderT
 
 -- |An action which specifies the number of copies.
 numCopies :: Monad m => Int -> PrintMethodBuilderT m ()
-numCopies n = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . cpn .~ n
+numCopies = setParam cpn
 
 -- |Alternative variant of 'numCopies'.
 numCopiesMaybe :: Monad m => MaybeT m Int -> PrintMethodBuilderT m ()
-numCopiesMaybe = lift . runMaybeT >=> traverse_ numCopies
+numCopiesMaybe = onMaybeT numCopies
 
 -- |An action which specifies if you want to sort your papers.
 doSort :: Monad m => Bool -> PrintMethodBuilderT m ()
-doSort b = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . colt .~ b
+doSort = setParam colt
 
 -- |Alternative variant of 'doSort'.
 doSortMaybe :: Monad m => MaybeT m Bool -> PrintMethodBuilderT m ()
-doSortMaybe = lift . runMaybeT >=> traverse_ doSort
+doSortMaybe = onMaybeT doSort
 
 -- |An action which specifies if you want to print on the both sides.
 onBothSides :: Monad m => Bool -> PrintMethodBuilderT m ()
-onBothSides b = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . dup .~ b
+onBothSides = setParam dup
 
 -- |Alternative variant of 'onBothSides'.
 onBothSidesMaybe :: Monad m => MaybeT m Bool -> PrintMethodBuilderT m ()
-onBothSidesMaybe = lift . runMaybeT >=> traverse_ onBothSides
+onBothSidesMaybe = onMaybeT onBothSides
 
 -- |An action which specifies a colour mode.
 colourMode :: Monad m => Colour -> PrintMethodBuilderT m ()
-colourMode c = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . clr .~ c
+colourMode = setParam clr
 
 -- |Alternative variant of 'colourMode'.
 colourModeMaybe :: Monad m => MaybeT m Colour -> PrintMethodBuilderT m ()
-colourModeMaybe = lift . runMaybeT >=> traverse_ colourMode
+colourModeMaybe = onMaybeT colourMode
 
 -- |An action which specifies if you want to staple your documents.
 withStaple :: Monad m => Bool -> PrintMethodBuilderT m ()
-withStaple b = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . stpl .~ b
+withStaple = setParam stpl
 
 -- |Alternative variant of 'withStaple'.
 withStapleMaybe :: Monad m => MaybeT m Bool -> PrintMethodBuilderT m ()
-withStapleMaybe = lift . runMaybeT >=> traverse_ withStaple
+withStapleMaybe = onMaybeT withStaple
 
 -- |An action which specifies if you want to punch your documents.
 withPunch :: Monad m => Bool -> PrintMethodBuilderT m ()
-withPunch b = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . pnch .~ b
+withPunch = setParam pnch
 
 -- |Alternative variant of 'withPunch'.
 withPunchMaybe :: Monad m => MaybeT m Bool -> PrintMethodBuilderT m ()
-withPunchMaybe = lift . runMaybeT >=> traverse_ withPunch
+withPunchMaybe = onMaybeT withPunch
 
 -- |An action which specifies an output tray.
 outputTray :: Monad m => OutputTray -> PrintMethodBuilderT m ()
-outputTray o = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . ot .~ o
+outputTray = setParam ot
 
 -- |Alternative variant of 'outputTray'.
 outputTrayMaybe :: Monad m => MaybeT m OutputTray -> PrintMethodBuilderT m ()
-outputTrayMaybe = lift . runMaybeT >=> traverse_ outputTray
+outputTrayMaybe = onMaybeT outputTray
 
 -- |An action which specifies an input tray.
 inputTray :: Monad m => InputTray -> PrintMethodBuilderT m ()
-inputTray i = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . it .~ i
+inputTray = setParam it
 
 -- |Alternative variant of 'inputTray'.
 inputTrayMaybe :: Monad m => MaybeT m InputTray -> PrintMethodBuilderT m ()
-inputTrayMaybe = lift . runMaybeT >=> traverse_ inputTray
+inputTrayMaybe = onMaybeT inputTray
 
 -- |An action which specifies a size of papers.
 paperSize :: Monad m => PaperSize -> PrintMethodBuilderT m ()
-paperSize s = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . siz .~ s
+paperSize = setParam siz
 
 -- |Alternative variant of 'paperSize'.
 paperSizeMaybe :: Monad m => MaybeT m PaperSize -> PrintMethodBuilderT m ()
-paperSizeMaybe = lift . runMaybeT >=> traverse_ paperSize
+paperSizeMaybe = onMaybeT paperSize
 
 -- |An action which specifies a type of papers.
 paperType :: Monad m => PaperType -> PrintMethodBuilderT m ()
-paperType t = PrintMethodBuilderT $ modify $ \p ->
-    p & commonOptions . med .~ t
+paperType = setParam med
 
 -- |Alternative variant of 'paperType'.
 paperTypeMaybe :: Monad m => MaybeT m PaperType -> PrintMethodBuilderT m ()
-paperTypeMaybe = lift . runMaybeT >=> traverse_ paperType
+paperTypeMaybe = onMaybeT paperType
+
+-- |A helper for actions which specifies a parameter on 'PrintMethodBuilderT'.
+setParam :: Monad m => Lens' CommonOptions a -> a -> PrintMethodBuilderT m ()
+setParam f = PrintMethodBuilderT . modify . set (commonOptions . f)
+
+-- |For readability. Stands for a general type of builder actions.
+type BuilderAction m a = a -> PrintMethodBuilderT m ()
+
+-- |A helper to make @'setParam' parameter'@ take 'MaybeT'.
+onMaybeT :: Monad m => BuilderAction m a -> MaybeT m a -> PrintMethodBuilderT m ()
+onMaybeT f = lift . runMaybeT >=> traverse_ f

@@ -169,6 +169,9 @@ execPrintMethodBuilder p (PrintMethodBuilderT s) = execState s p
 evalPrintMethodBuilder :: PrintMethod -> PrintMethodBuilder a -> a
 evalPrintMethodBuilder p (PrintMethodBuilderT s) = evalState s p
 
+instance MonadIO m => MonadIO (PrintMethodBuilderT m) where
+    liftIO action = PrintMethodBuilderT $ liftIO action
+
 -- |An action which specifies the number of copies.
 numCopies :: Monad m => Int -> PrintMethodBuilderT m ()
 numCopies = setParam cpn

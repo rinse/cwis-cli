@@ -39,7 +39,6 @@ dependencies:
 - scalpel-core >= 0.6
 - tagsoup >= 0.14
 - text >= 1.2
-- transformers >= 0.5
 
 library:
   source-dirs: src

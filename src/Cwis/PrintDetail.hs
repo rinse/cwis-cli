@@ -105,8 +105,15 @@ paperSizeToDetail (Just SizeLegal) = "LG"
 paperSizeToDetail (Just I15) = "I15"
 paperSizeToDetail (Just SizeLedger) = "LD"
 
-paperTypeToDetail :: PaperType -> String
-paperTypeToDetail TypeAuto = "NUL"
+paperTypeToDetail :: Maybe PaperType -> String
+paperTypeToDetail Nothing = "NUL"
+paperTypeToDetail (Just NormalPaper) = "NR"
+paperTypeToDetail (Just RecycledPaper) = "RC"
+paperTypeToDetail (Just UserDefinedPaper1) = "U1"
+paperTypeToDetail (Just UserDefinedPaper2) = "U2"
+paperTypeToDetail (Just UserDefinedPaper3) = "U3"
+paperTypeToDetail (Just UserDefinedPaper4) = "U4"
+paperTypeToDetail (Just UserDefinedPaper5) = "U5"
 
 -- |Primitive arguments for printer.
 data PrintDetail = PrintDetail

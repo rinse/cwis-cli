@@ -81,7 +81,7 @@ data CommonOptions = CommonOptions
     , _ot   :: OutputTray       -- ^output tray
     , _it   :: InputTray        -- ^input tray
     , _siz  :: Maybe PaperSize  -- ^paper size
-    , _med  :: PaperType        -- ^paper type
+    , _med  :: Maybe PaperType  -- ^paper type
     } deriving (Show, Eq)
 
 instance Default CommonOptions where
@@ -89,7 +89,7 @@ instance Default CommonOptions where
             1 Nothing Nothing ColourAuto
             Nothing Nothing
             OutputTray InputTrayAuto
-            Nothing TypeAuto
+            Nothing Nothing
 
 -- |Represents a duplex-printing mode.
 data Duplex = LongEdge | ShortEdge
@@ -134,7 +134,14 @@ data PaperSize
     deriving (Show, Enum, Eq)
 
 -- |Represents a type of papers.
-data PaperType = TypeAuto
+data PaperType
+    = NormalPaper
+    | RecycledPaper
+    | UserDefinedPaper1
+    | UserDefinedPaper2
+    | UserDefinedPaper3
+    | UserDefinedPaper4
+    | UserDefinedPaper5
     deriving (Show, Enum, Eq)
 
 makeLenses ''CommonOptions
@@ -271,11 +278,11 @@ paperSize' :: (Monad m, Foldable t) => t (Maybe PaperSize) -> PrintMethodBuilder
 paperSize' = traverse_ paperSize
 
 -- |An action which specifies a type of papers.
-paperType :: Monad m => PaperType -> PrintMethodBuilderT m ()
+paperType :: Monad m => Maybe PaperType -> PrintMethodBuilderT m ()
 paperType = setParam med
 
 -- |Alternative variant of 'paperType'.
-paperType' :: (Monad m, Foldable t) => t PaperType -> PrintMethodBuilderT m ()
+paperType' :: (Monad m, Foldable t) => t (Maybe PaperType) -> PrintMethodBuilderT m ()
 paperType' = traverse_ paperType
 
 -- |A helper for actions which specifies a parameter on 'PrintMethodBuilderT'.

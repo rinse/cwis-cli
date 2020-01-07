@@ -68,7 +68,7 @@ spec = do
                 siz `shouldBe` s'
         context "paperType" $
             prop "specifies a type of papers." $ \t -> do
-                let t' = runPaperTypeWrapper t
+                let t' = runPaperTypeWrapper <$> t
                     (CommonOptions _ _ _ _ _ _ _ _ _ med) = helpTestingAction $ paperType t'
                 med `shouldBe` t'
 

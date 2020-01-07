@@ -62,8 +62,18 @@ colourToDetail ColourAuto = "AUTO"
 colourToDetail MultiColoured = "CLR"
 colourToDetail MonoColoured = "BW"
 
-withStapleToDetail, withPunchToDetail :: Bool -> String
-withStapleToDetail = yesno
+withStapleToDetail :: Maybe Staple -> String
+withStapleToDetail Nothing = "NO"
+withStapleToDetail (Just UpperLeft) = "UL"
+withStapleToDetail (Just LowerLeft) = "LL"
+withStapleToDetail (Just UpperRight) = "UR"
+withStapleToDetail (Just LowerRight) = "LR"
+withStapleToDetail (Just Top2) = "TD"
+withStapleToDetail (Just Bottom2) = "BD"
+withStapleToDetail (Just Left2) = "LD"
+withStapleToDetail (Just Right2) = "RD"
+
+withPunchToDetail :: Bool -> String
 withPunchToDetail = yesno
 
 outputTrayToDetail :: OutputTray -> String

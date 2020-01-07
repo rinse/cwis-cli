@@ -42,9 +42,10 @@ spec = do
                     (CommonOptions _ _ _ clr _ _ _ _ _ _) = helpTestingAction $ colourMode c'
                 clr `shouldBe` c'
         context "withStaple" $
-            prop "specifies if you want to staple your documents." $ \b -> do
-                let (CommonOptions _ _ _ _ stpl _ _ _ _ _) = helpTestingAction $ withStaple b
-                stpl `shouldBe` b
+            prop "specifies if you want to staple your documents." $ \s -> do
+                let s' = runStapleWrapper <$> s
+                    (CommonOptions _ _ _ _ stpl _ _ _ _ _) = helpTestingAction $ withStaple s'
+                stpl `shouldBe` s'
         context "withPunch" $
             prop "specifies if you want to staple your documents." $ \b -> do
                 let (CommonOptions _ _ _ _ _ pnch _ _ _ _) = helpTestingAction $ withPunch b
@@ -103,6 +104,12 @@ newtype ColourWrapper = ColourWrapper { runColourWrapper :: Colour }
 
 instance Arbitrary ColourWrapper where
     arbitrary = getArbitrary ColourWrapper
+
+newtype StapleWrapper = StapleWrapper { runStapleWrapper :: Staple }
+    deriving (Show, Eq)
+
+instance Arbitrary StapleWrapper where
+    arbitrary = getArbitrary StapleWrapper
 
 newtype OutputTrayWrapper = OutputTrayWrapper { runOutputTrayWrapper :: OutputTray }
     deriving (Show, Eq)

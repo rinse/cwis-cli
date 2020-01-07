@@ -7,6 +7,7 @@ module Cwis.PrintMethod
     , CommonOptions (CommonOptions)
     , Duplex (..)
     , Colour (..)
+    , Staple (..)
     , OutputTray (..)
     , InputTray (..)
     , PaperSize (..)
@@ -74,7 +75,7 @@ data CommonOptions = CommonOptions
     , _colt :: Maybe Bool   -- ^sort
     , _dup  :: Maybe Duplex -- ^print on both sides
     , _clr  :: Colour       -- ^colour mode
-    , _stpl :: Bool         -- ^staple
+    , _stpl :: Maybe Staple -- ^staple
     , _pnch :: Bool         -- ^punch
     , _ot   :: OutputTray   -- ^output tray
     , _it   :: InputTray    -- ^input tray
@@ -85,7 +86,7 @@ data CommonOptions = CommonOptions
 instance Default CommonOptions where
     def = CommonOptions
             1 Nothing Nothing ColourAuto
-            False False
+            Nothing False
             OutputTray InputTrayAuto
             SizeAuto TypeAuto
 
@@ -95,6 +96,10 @@ data Duplex = LongEdge | ShortEdge
 
 -- |Represents a colour mode.
 data Colour = ColourAuto | MultiColoured | MonoColoured
+    deriving (Show, Enum, Eq)
+
+-- |Represents a staple mode.
+data Staple = UpperLeft | LowerLeft | UpperRight | LowerRight | Top2 | Bottom2 | Left2 | Right2
     deriving (Show, Enum, Eq)
 
 -- |Represents an output tray.
@@ -210,11 +215,11 @@ colourMode' :: (Monad m, Foldable t) => t Colour -> PrintMethodBuilderT m ()
 colourMode' = traverse_ colourMode
 
 -- |An action which specifies if you want to staple your documents.
-withStaple :: Monad m => Bool -> PrintMethodBuilderT m ()
+withStaple :: Monad m => Maybe Staple -> PrintMethodBuilderT m ()
 withStaple = setParam stpl
 
 -- |Alternative variant of 'withStaple'.
-withStaple' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+withStaple' :: (Monad m, Foldable t) => t (Maybe Staple) -> PrintMethodBuilderT m ()
 withStaple' = traverse_ withStaple
 
 -- |An action which specifies if you want to punch your documents.

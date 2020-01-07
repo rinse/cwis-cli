@@ -1,5 +1,6 @@
 module Cwis.PrintMethodSpec (spec) where
 
+import           Control.Arrow             ((>>>))
 import           Cwis.PrintMethod
 import           Data.Default              (def)
 import           Test.Hspec
@@ -32,45 +33,37 @@ spec = do
                 let (CommonOptions _ colt _ _ _ _ _ _ _ _) = helpTestingAction $ doSort b
                 colt `shouldBe` b
         context "onBothSides" $
-            prop "specifies if you want to print on the both sides." $ \b -> do
-                let b' = runDuplexWrapper <$> b
-                    (CommonOptions _ _ dup _ _ _ _ _ _ _) = helpTestingAction $ onBothSides b'
-                dup `shouldBe` b'
+            prop "specifies if you want to print on the both sides." $ fmap runDuplexWrapper >>> \b -> do
+                let (CommonOptions _ _ dup _ _ _ _ _ _ _) = helpTestingAction $ onBothSides b
+                dup `shouldBe` b
         context "colourMode" $
-            prop "specifies a colour mode." $ \c -> do
-                let c' = runColourWrapper c
-                    (CommonOptions _ _ _ clr _ _ _ _ _ _) = helpTestingAction $ colourMode c'
-                clr `shouldBe` c'
+            prop "specifies a colour mode." $ runColourWrapper >>> \c -> do
+                let (CommonOptions _ _ _ clr _ _ _ _ _ _) = helpTestingAction $ colourMode c
+                clr `shouldBe` c
         context "withStaple" $
-            prop "specifies if you want to staple your documents." $ \s -> do
-                let s' = runStapleWrapper <$> s
-                    (CommonOptions _ _ _ _ stpl _ _ _ _ _) = helpTestingAction $ withStaple s'
-                stpl `shouldBe` s'
+            prop "specifies if you want to staple your documents." $ fmap runStapleWrapper >>> \s -> do
+                let (CommonOptions _ _ _ _ stpl _ _ _ _ _) = helpTestingAction $ withStaple s
+                stpl `shouldBe` s
         context "withPunch" $
-            prop "specifies if you want to staple your documents." $ \p -> do
-                let p' = runPunchWrapper <$> p
-                let (CommonOptions _ _ _ _ _ pnch _ _ _ _) = helpTestingAction $ withPunch p'
-                pnch `shouldBe` p'
+            prop "specifies if you want to staple your documents." $ fmap runPunchWrapper >>> \p -> do
+                let (CommonOptions _ _ _ _ _ pnch _ _ _ _) = helpTestingAction $ withPunch p
+                pnch `shouldBe` p
         context "outputTray" $
-            prop "specifies an output tray." $ \t -> do
-                let t' = runOutputTrayWrapper t
-                    (CommonOptions _ _ _ _ _ _ ot _ _ _) = helpTestingAction $ outputTray t'
-                ot `shouldBe` t'
+            prop "specifies an output tray." $ runOutputTrayWrapper >>> \t -> do
+                let (CommonOptions _ _ _ _ _ _ ot _ _ _) = helpTestingAction $ outputTray t
+                ot `shouldBe` t
         context "inputTray" $
-            prop "specifies an input tray." $ \t -> do
-                let t' = runInputTrayWrapper t
-                    (CommonOptions _ _ _ _ _ _ _ it' _ _) = helpTestingAction $ inputTray t'
-                it' `shouldBe` t'
+            prop "specifies an input tray." $ runInputTrayWrapper >>> \t -> do
+                let (CommonOptions _ _ _ _ _ _ _ it' _ _) = helpTestingAction $ inputTray t
+                it' `shouldBe` t
         context "paperSize" $
-            prop "specifies a size of papers." $ \s -> do
-                let s' = runPaperSizeWrapper <$> s
-                    (CommonOptions _ _ _ _ _ _ _ _ siz _) = helpTestingAction $ paperSize s'
-                siz `shouldBe` s'
+            prop "specifies a size of papers." $ fmap runPaperSizeWrapper >>> \s -> do
+                let (CommonOptions _ _ _ _ _ _ _ _ siz _) = helpTestingAction $ paperSize s
+                siz `shouldBe` s
         context "paperType" $
-            prop "specifies a type of papers." $ \t -> do
-                let t' = runPaperTypeWrapper <$> t
-                    (CommonOptions _ _ _ _ _ _ _ _ _ med) = helpTestingAction $ paperType t'
-                med `shouldBe` t'
+            prop "specifies a type of papers." $ fmap runPaperTypeWrapper >>> \t -> do
+                let (CommonOptions _ _ _ _ _ _ _ _ _ med) = helpTestingAction $ paperType t
+                med `shouldBe` t
 
         context "numCopies' takes a foldable argument like:" $ do
             prop "Maybe" $ \n -> do

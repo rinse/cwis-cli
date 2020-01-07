@@ -47,9 +47,10 @@ spec = do
                     (CommonOptions _ _ _ _ stpl _ _ _ _ _) = helpTestingAction $ withStaple s'
                 stpl `shouldBe` s'
         context "withPunch" $
-            prop "specifies if you want to staple your documents." $ \b -> do
-                let (CommonOptions _ _ _ _ _ pnch _ _ _ _) = helpTestingAction $ withPunch b
-                pnch `shouldBe` b
+            prop "specifies if you want to staple your documents." $ \p -> do
+                let p' = runPunchWrapper <$> p
+                let (CommonOptions _ _ _ _ _ pnch _ _ _ _) = helpTestingAction $ withPunch p'
+                pnch `shouldBe` p'
         context "outputTray" $
             prop "specifies an output tray." $ \t -> do
                 let t' = runOutputTrayWrapper t
@@ -110,6 +111,12 @@ newtype StapleWrapper = StapleWrapper { runStapleWrapper :: Staple }
 
 instance Arbitrary StapleWrapper where
     arbitrary = getArbitrary StapleWrapper
+
+newtype PunchWrapper = PunchWrapper { runPunchWrapper :: Punch }
+    deriving (Show, Eq)
+
+instance Arbitrary PunchWrapper where
+    arbitrary = getArbitrary PunchWrapper
 
 newtype OutputTrayWrapper = OutputTrayWrapper { runOutputTrayWrapper :: OutputTray }
     deriving (Show, Eq)

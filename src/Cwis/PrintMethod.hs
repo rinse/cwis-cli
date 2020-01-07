@@ -8,6 +8,7 @@ module Cwis.PrintMethod
     , Duplex (..)
     , Colour (..)
     , Staple (..)
+    , Punch (..)
     , OutputTray (..)
     , InputTray (..)
     , PaperSize (..)
@@ -76,7 +77,7 @@ data CommonOptions = CommonOptions
     , _dup  :: Maybe Duplex -- ^print on both sides
     , _clr  :: Colour       -- ^colour mode
     , _stpl :: Maybe Staple -- ^staple
-    , _pnch :: Bool         -- ^punch
+    , _pnch :: Maybe Punch  -- ^punch
     , _ot   :: OutputTray   -- ^output tray
     , _it   :: InputTray    -- ^input tray
     , _siz  :: PaperSize    -- ^paper size
@@ -86,7 +87,7 @@ data CommonOptions = CommonOptions
 instance Default CommonOptions where
     def = CommonOptions
             1 Nothing Nothing ColourAuto
-            Nothing False
+            Nothing Nothing
             OutputTray InputTrayAuto
             SizeAuto TypeAuto
 
@@ -100,6 +101,10 @@ data Colour = ColourAuto | MultiColoured | MonoColoured
 
 -- |Represents a staple mode.
 data Staple = UpperLeft | LowerLeft | UpperRight | LowerRight | Top2 | Bottom2 | Left2 | Right2
+    deriving (Show, Enum, Eq)
+
+-- |Represents a punch mode.
+data Punch = PunchTop2 | PunchBottom2 | PunchLeft2 | PunchRight2 | PunchTop4 | PunchBottom4 | PunchLeft4 | PunchRight4
     deriving (Show, Enum, Eq)
 
 -- |Represents an output tray.
@@ -223,11 +228,11 @@ withStaple' :: (Monad m, Foldable t) => t (Maybe Staple) -> PrintMethodBuilderT 
 withStaple' = traverse_ withStaple
 
 -- |An action which specifies if you want to punch your documents.
-withPunch :: Monad m => Bool -> PrintMethodBuilderT m ()
+withPunch :: Monad m => Maybe Punch -> PrintMethodBuilderT m ()
 withPunch = setParam pnch
 
 -- |Alternative variant of 'withPunch'.
-withPunch' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+withPunch' :: (Monad m, Foldable t) => t (Maybe Punch) -> PrintMethodBuilderT m ()
 withPunch' = traverse_ withPunch
 
 -- |An action which specifies an output tray.

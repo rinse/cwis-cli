@@ -48,10 +48,6 @@ doSortToDetail Nothing = "NO"
 doSortToDetail (Just True) = "ON"
 doSortToDetail (Just False) = "OFF"
 
-yesno :: Bool -> String
-yesno True  = "YES"
-yesno False = "NO"
-
 onBothSidesToDetail :: Maybe Duplex -> String
 onBothSidesToDetail Nothing = "NO"
 onBothSidesToDetail (Just LongEdge) = "DP"
@@ -73,8 +69,16 @@ withStapleToDetail (Just Bottom2) = "BD"
 withStapleToDetail (Just Left2) = "LD"
 withStapleToDetail (Just Right2) = "RD"
 
-withPunchToDetail :: Bool -> String
-withPunchToDetail = yesno
+withPunchToDetail :: Maybe Punch -> String
+withPunchToDetail Nothing = "NO"
+withPunchToDetail (Just PunchTop2) = "TD"
+withPunchToDetail (Just PunchBottom2) = "BD"
+withPunchToDetail (Just PunchLeft2) = "LD"
+withPunchToDetail (Just PunchRight2) = "RD"
+withPunchToDetail (Just PunchTop4) = "TF"
+withPunchToDetail (Just PunchBottom4) = "BF"
+withPunchToDetail (Just PunchLeft4) = "LF"
+withPunchToDetail (Just PunchRight4) = "RF"
 
 outputTrayToDetail :: OutputTray -> String
 outputTrayToDetail OutputTray   = "MT"

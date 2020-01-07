@@ -70,7 +70,7 @@ commonOptions f (SecurityPrint username password file options) =
 -- |Common options to every 'PrintMethod'.
 data CommonOptions = CommonOptions
     { _cpn  :: Int         -- ^num of copies
-    , _colt :: Bool        -- ^sort
+    , _colt :: Maybe Bool  -- ^sort
     , _dup  :: Bool        -- ^print on both sides
     , _clr  :: Colour      -- ^colour mode
     , _stpl :: Bool        -- ^staple
@@ -83,7 +83,7 @@ data CommonOptions = CommonOptions
 
 instance Default CommonOptions where
     def = CommonOptions
-            1 False False ColourAuto
+            1 Nothing False ColourAuto
             False False
             OutputTray InputTrayAuto
             SizeAuto TypeAuto
@@ -181,11 +181,11 @@ numCopies' :: (Monad m, Foldable t) => t Int -> PrintMethodBuilderT m ()
 numCopies' = traverse_ numCopies
 
 -- |An action which specifies if you want to sort your papers.
-doSort :: Monad m => Bool -> PrintMethodBuilderT m ()
+doSort :: Monad m => Maybe Bool -> PrintMethodBuilderT m ()
 doSort = setParam colt
 
 -- |Alternative variant of 'doSort'.
-doSort' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+doSort' :: (Monad m, Foldable t) => t (Maybe Bool) -> PrintMethodBuilderT m ()
 doSort' = traverse_ doSort
 
 -- |An action which specifies if you want to print on the both sides.

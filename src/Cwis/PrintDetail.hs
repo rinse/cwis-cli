@@ -43,18 +43,24 @@ methodToDetail (SecurityPrint username password file (CommonOptions cpn colt dup
 numCopiesToDetail :: Int -> Int
 numCopiesToDetail = id
 
-doSortToDetail, onBothSidesToDetail :: Bool -> String
-doSortToDetail True  = "YES"
-doSortToDetail False = "NO"
+doSortToDetail :: Maybe Bool -> String
+doSortToDetail Nothing = "NO"
+doSortToDetail (Just True) = "ON"
+doSortToDetail (Just False) = "OFF"
 
-onBothSidesToDetail = doSortToDetail
+yesno :: Bool -> String
+yesno True  = "YES"
+yesno False = "NO"
+
+onBothSidesToDetail :: Bool -> String
+onBothSidesToDetail = yesno
 
 colourToDetail :: Colour -> String
 colourToDetail ColourAuto = "Auto"
 
 withStapleToDetail, withPunchToDetail :: Bool -> String
-withStapleToDetail = doSortToDetail
-withPunchToDetail = doSortToDetail
+withStapleToDetail = yesno
+withPunchToDetail = yesno
 
 outputTrayToDetail :: OutputTray -> String
 outputTrayToDetail OutputTray   = "MT"

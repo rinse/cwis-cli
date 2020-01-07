@@ -94,7 +94,7 @@ data Duplex = LongEdge | ShortEdge
     deriving (Show, Enum, Eq)
 
 -- |Represents a colour mode.
-data Colour = ColourAuto
+data Colour = ColourAuto | MultiColoured | MonoColoured
     deriving (Show, Enum, Eq)
 
 -- |Represents an output tray.

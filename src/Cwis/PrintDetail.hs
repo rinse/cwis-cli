@@ -58,7 +58,9 @@ onBothSidesToDetail (Just LongEdge) = "DP"
 onBothSidesToDetail (Just ShortEdge) = "TB"
 
 colourToDetail :: Colour -> String
-colourToDetail ColourAuto = "Auto"
+colourToDetail ColourAuto = "AUTO"
+colourToDetail MultiColoured = "CLR"
+colourToDetail MonoColoured = "BW"
 
 withStapleToDetail, withPunchToDetail :: Bool -> String
 withStapleToDetail = yesno

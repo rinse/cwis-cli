@@ -5,6 +5,7 @@
 module Cwis.PrintMethod
     ( PrintMethod (..)
     , CommonOptions (CommonOptions)
+    , Duplex (..)
     , Colour (..)
     , OutputTray (..)
     , InputTray (..)
@@ -69,24 +70,28 @@ commonOptions f (SecurityPrint username password file options) =
 
 -- |Common options to every 'PrintMethod'.
 data CommonOptions = CommonOptions
-    { _cpn  :: Int         -- ^num of copies
-    , _colt :: Maybe Bool  -- ^sort
-    , _dup  :: Bool        -- ^print on both sides
-    , _clr  :: Colour      -- ^colour mode
-    , _stpl :: Bool        -- ^staple
-    , _pnch :: Bool        -- ^punch
-    , _ot   :: OutputTray  -- ^output tray
-    , _it   :: InputTray   -- ^input tray
-    , _siz  :: PaperSize   -- ^paper size
-    , _med  :: PaperType   -- ^paper type
+    { _cpn  :: Int          -- ^num of copies
+    , _colt :: Maybe Bool   -- ^sort
+    , _dup  :: Maybe Duplex -- ^print on both sides
+    , _clr  :: Colour       -- ^colour mode
+    , _stpl :: Bool         -- ^staple
+    , _pnch :: Bool         -- ^punch
+    , _ot   :: OutputTray   -- ^output tray
+    , _it   :: InputTray    -- ^input tray
+    , _siz  :: PaperSize    -- ^paper size
+    , _med  :: PaperType    -- ^paper type
     } deriving (Show, Eq)
 
 instance Default CommonOptions where
     def = CommonOptions
-            1 Nothing False ColourAuto
+            1 Nothing Nothing ColourAuto
             False False
             OutputTray InputTrayAuto
             SizeAuto TypeAuto
+
+-- |Represents a duplex-printing mode.
+data Duplex = LongEdge | ShortEdge
+    deriving (Show, Enum, Eq)
 
 -- |Represents a colour mode.
 data Colour = ColourAuto
@@ -189,11 +194,11 @@ doSort' :: (Monad m, Foldable t) => t (Maybe Bool) -> PrintMethodBuilderT m ()
 doSort' = traverse_ doSort
 
 -- |An action which specifies if you want to print on the both sides.
-onBothSides :: Monad m => Bool -> PrintMethodBuilderT m ()
+onBothSides :: Monad m => Maybe Duplex -> PrintMethodBuilderT m ()
 onBothSides = setParam dup
 
 -- |Alternative variant of 'onBothSides'.
-onBothSides' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+onBothSides' :: (Monad m, Foldable t) => t (Maybe Duplex) -> PrintMethodBuilderT m ()
 onBothSides' = traverse_ onBothSides
 
 -- |An action which specifies a colour mode.

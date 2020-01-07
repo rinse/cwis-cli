@@ -33,8 +33,9 @@ spec = do
                 colt `shouldBe` b
         context "onBothSides" $
             prop "specifies if you want to print on the both sides." $ \b -> do
-                let (CommonOptions _ _ dup _ _ _ _ _ _ _) = helpTestingAction $ onBothSides b
-                dup `shouldBe` b
+                let b' = runDuplexWrapper <$> b
+                    (CommonOptions _ _ dup _ _ _ _ _ _ _) = helpTestingAction $ onBothSides b'
+                dup `shouldBe` b'
         context "colourMode" $
             prop "specifies a colour mode." $ \c -> do
                 let c' = runColourWrapper c
@@ -90,6 +91,12 @@ getArbitrary :: Enum a => (a -> w) -> Gen w
 getArbitrary f = elements $ f <$> enumFrom (toEnum 0)
 
 -- Wrappers which implement Arbitrary
+
+newtype DuplexWrapper = DuplexWrapper { runDuplexWrapper :: Duplex }
+    deriving (Show, Eq)
+
+instance Arbitrary DuplexWrapper where
+    arbitrary = getArbitrary DuplexWrapper
 
 newtype ColourWrapper = ColourWrapper { runColourWrapper :: Colour }
     deriving (Show, Eq)

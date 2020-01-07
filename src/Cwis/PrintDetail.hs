@@ -52,8 +52,10 @@ yesno :: Bool -> String
 yesno True  = "YES"
 yesno False = "NO"
 
-onBothSidesToDetail :: Bool -> String
-onBothSidesToDetail = yesno
+onBothSidesToDetail :: Maybe Duplex -> String
+onBothSidesToDetail Nothing = "NO"
+onBothSidesToDetail (Just LongEdge) = "DP"
+onBothSidesToDetail (Just ShortEdge) = "TB"
 
 colourToDetail :: Colour -> String
 colourToDetail ColourAuto = "Auto"

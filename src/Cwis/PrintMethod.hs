@@ -72,16 +72,16 @@ commonOptions f (SecurityPrint username password file options) =
 
 -- |Common options to every 'PrintMethod'.
 data CommonOptions = CommonOptions
-    { _cpn  :: Int          -- ^num of copies
-    , _colt :: Maybe Bool   -- ^sort
-    , _dup  :: Maybe Duplex -- ^print on both sides
-    , _clr  :: Colour       -- ^colour mode
-    , _stpl :: Maybe Staple -- ^staple
-    , _pnch :: Maybe Punch  -- ^punch
-    , _ot   :: OutputTray   -- ^output tray
-    , _it   :: InputTray    -- ^input tray
-    , _siz  :: PaperSize    -- ^paper size
-    , _med  :: PaperType    -- ^paper type
+    { _cpn  :: Int              -- ^num of copies
+    , _colt :: Maybe Bool       -- ^sort
+    , _dup  :: Maybe Duplex     -- ^print on both sides
+    , _clr  :: Colour           -- ^colour mode
+    , _stpl :: Maybe Staple     -- ^staple
+    , _pnch :: Maybe Punch      -- ^punch
+    , _ot   :: OutputTray       -- ^output tray
+    , _it   :: InputTray        -- ^input tray
+    , _siz  :: Maybe PaperSize  -- ^paper size
+    , _med  :: PaperType        -- ^paper type
     } deriving (Show, Eq)
 
 instance Default CommonOptions where
@@ -89,7 +89,7 @@ instance Default CommonOptions where
             1 Nothing Nothing ColourAuto
             Nothing Nothing
             OutputTray InputTrayAuto
-            SizeAuto TypeAuto
+            Nothing TypeAuto
 
 -- |Represents a duplex-printing mode.
 data Duplex = LongEdge | ShortEdge
@@ -129,7 +129,8 @@ data InputTray = InputTrayAuto | Tray1 | Tray2 | Tray3 | Tray4 | ManualFeed
     deriving (Show, Enum, Eq)
 
 -- |Represents a size of papers.
-data PaperSize = SizeAuto
+data PaperSize
+    = A3 | B4 | A4 | B5 | A5 | SizeLetter | FoolscapFolio | SizeLegal | I15 | SizeLedger
     deriving (Show, Enum, Eq)
 
 -- |Represents a type of papers.
@@ -262,11 +263,11 @@ inputTray' :: (Monad m, Foldable t) => t InputTray -> PrintMethodBuilderT m ()
 inputTray' = traverse_ inputTray
 
 -- |An action which specifies a size of papers.
-paperSize :: Monad m => PaperSize -> PrintMethodBuilderT m ()
+paperSize :: Monad m => Maybe PaperSize -> PrintMethodBuilderT m ()
 paperSize = setParam siz
 
 -- |Alternative variant of 'paperSize'.
-paperSize' :: (Monad m, Foldable t) => t PaperSize -> PrintMethodBuilderT m ()
+paperSize' :: (Monad m, Foldable t) => t (Maybe PaperSize) -> PrintMethodBuilderT m ()
 paperSize' = traverse_ paperSize
 
 -- |An action which specifies a type of papers.

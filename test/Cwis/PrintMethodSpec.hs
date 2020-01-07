@@ -63,7 +63,7 @@ spec = do
                 it' `shouldBe` t'
         context "paperSize" $
             prop "specifies a size of papers." $ \s -> do
-                let s' = runPaperSizeWrapper s
+                let s' = runPaperSizeWrapper <$> s
                     (CommonOptions _ _ _ _ _ _ _ _ siz _) = helpTestingAction $ paperSize s'
                 siz `shouldBe` s'
         context "paperType" $

@@ -92,8 +92,18 @@ inputTrayToDetail Tray3         = "T3"
 inputTrayToDetail Tray4         = "T4"
 inputTrayToDetail ManualFeed    = "SMH"
 
-paperSizeToDetail :: PaperSize -> String
-paperSizeToDetail SizeAuto = "NUL"
+paperSizeToDetail :: Maybe PaperSize -> String
+paperSizeToDetail Nothing = "NUL"
+paperSizeToDetail (Just A3) = "A3"
+paperSizeToDetail (Just B4) = "B4"
+paperSizeToDetail (Just A4) = "A4"
+paperSizeToDetail (Just B5) = "B5"
+paperSizeToDetail (Just A5) = "A5"
+paperSizeToDetail (Just SizeLetter) = "LT"
+paperSizeToDetail (Just FoolscapFolio) = "FL"
+paperSizeToDetail (Just SizeLegal) = "LG"
+paperSizeToDetail (Just I15) = "I15"
+paperSizeToDetail (Just SizeLedger) = "LD"
 
 paperTypeToDetail :: PaperType -> String
 paperTypeToDetail TypeAuto = "NUL"

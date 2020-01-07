@@ -60,14 +60,14 @@ colourToDetail MonoColoured = "BW"
 
 withStapleToDetail :: Maybe Staple -> String
 withStapleToDetail Nothing = "NO"
-withStapleToDetail (Just UpperLeft) = "UL"
-withStapleToDetail (Just LowerLeft) = "LL"
-withStapleToDetail (Just UpperRight) = "UR"
-withStapleToDetail (Just LowerRight) = "LR"
-withStapleToDetail (Just Top2) = "TD"
-withStapleToDetail (Just Bottom2) = "BD"
-withStapleToDetail (Just Left2) = "LD"
-withStapleToDetail (Just Right2) = "RD"
+withStapleToDetail (Just StapleUpperLeft) = "UL"
+withStapleToDetail (Just StapleLowerLeft) = "LL"
+withStapleToDetail (Just StapleUpperRight) = "UR"
+withStapleToDetail (Just StapleLowerRight) = "LR"
+withStapleToDetail (Just StapleTop2) = "TD"
+withStapleToDetail (Just StapleBottom2) = "BD"
+withStapleToDetail (Just StapleLeft2) = "LD"
+withStapleToDetail (Just StapleRight2) = "RD"
 
 withPunchToDetail :: Maybe Punch -> String
 withPunchToDetail Nothing = "NO"

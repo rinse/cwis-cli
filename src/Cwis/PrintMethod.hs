@@ -100,11 +100,21 @@ data Colour = ColourAuto | MultiColoured | MonoColoured
     deriving (Show, Enum, Eq)
 
 -- |Represents a staple mode.
-data Staple = UpperLeft | LowerLeft | UpperRight | LowerRight | Top2 | Bottom2 | Left2 | Right2
+data Staple
+    = StapleUpperLeft
+    | StapleLowerLeft
+    | StapleUpperRight
+    | StapleLowerRight
+    | StapleTop2
+    | StapleBottom2
+    | StapleLeft2
+    | StapleRight2
     deriving (Show, Enum, Eq)
 
 -- |Represents a punch mode.
-data Punch = PunchTop2 | PunchBottom2 | PunchLeft2 | PunchRight2 | PunchTop4 | PunchBottom4 | PunchLeft4 | PunchRight4
+data Punch
+    = PunchTop2 | PunchBottom2 | PunchLeft2 | PunchRight2
+    | PunchTop4 | PunchBottom4 | PunchLeft4 | PunchRight4
     deriving (Show, Enum, Eq)
 
 -- |Represents an output tray.

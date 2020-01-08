@@ -5,7 +5,10 @@
 module Cwis.PrintMethod
     ( PrintMethod (..)
     , CommonOptions (CommonOptions)
+    , Duplex (..)
     , Colour (..)
+    , Staple (..)
+    , Punch (..)
     , OutputTray (..)
     , InputTray (..)
     , PaperSize (..)
@@ -69,27 +72,49 @@ commonOptions f (SecurityPrint username password file options) =
 
 -- |Common options to every 'PrintMethod'.
 data CommonOptions = CommonOptions
-    { _cpn  :: Int         -- ^num of copies
-    , _colt :: Bool        -- ^sort
-    , _dup  :: Bool        -- ^print on both sides
-    , _clr  :: Colour      -- ^colour mode
-    , _stpl :: Bool        -- ^staple
-    , _pnch :: Bool        -- ^punch
-    , _ot   :: OutputTray  -- ^output tray
-    , _it   :: InputTray   -- ^input tray
-    , _siz  :: PaperSize   -- ^paper size
-    , _med  :: PaperType   -- ^paper type
+    { _cpn  :: Int              -- ^num of copies
+    , _colt :: Maybe Bool       -- ^sort
+    , _dup  :: Maybe Duplex     -- ^print on both sides
+    , _clr  :: Colour           -- ^colour mode
+    , _stpl :: Maybe Staple     -- ^staple
+    , _pnch :: Maybe Punch      -- ^punch
+    , _ot   :: OutputTray       -- ^output tray
+    , _it   :: InputTray        -- ^input tray
+    , _siz  :: Maybe PaperSize  -- ^paper size
+    , _med  :: Maybe PaperType  -- ^paper type
     } deriving (Show, Eq)
 
 instance Default CommonOptions where
     def = CommonOptions
-            1 False False ColourAuto
-            False False
+            1 Nothing Nothing ColourAuto
+            Nothing Nothing
             OutputTray InputTrayAuto
-            SizeAuto TypeAuto
+            Nothing Nothing
+
+-- |Represents a duplex-printing mode.
+data Duplex = LongEdge | ShortEdge
+    deriving (Show, Enum, Eq)
 
 -- |Represents a colour mode.
-data Colour = ColourAuto
+data Colour = ColourAuto | MultiColoured | MonoColoured
+    deriving (Show, Enum, Eq)
+
+-- |Represents a staple mode.
+data Staple
+    = StapleUpperLeft
+    | StapleLowerLeft
+    | StapleUpperRight
+    | StapleLowerRight
+    | StapleTop2
+    | StapleBottom2
+    | StapleLeft2
+    | StapleRight2
+    deriving (Show, Enum, Eq)
+
+-- |Represents a punch mode.
+data Punch
+    = PunchTop2 | PunchBottom2 | PunchLeft2 | PunchRight2
+    | PunchTop4 | PunchBottom4 | PunchLeft4 | PunchRight4
     deriving (Show, Enum, Eq)
 
 -- |Represents an output tray.
@@ -104,11 +129,19 @@ data InputTray = InputTrayAuto | Tray1 | Tray2 | Tray3 | Tray4 | ManualFeed
     deriving (Show, Enum, Eq)
 
 -- |Represents a size of papers.
-data PaperSize = SizeAuto
+data PaperSize
+    = A3 | B4 | A4 | B5 | A5 | SizeLetter | FoolscapFolio | SizeLegal | I15 | SizeLedger
     deriving (Show, Enum, Eq)
 
 -- |Represents a type of papers.
-data PaperType = TypeAuto
+data PaperType
+    = NormalPaper
+    | RecycledPaper
+    | UserDefinedPaper1
+    | UserDefinedPaper2
+    | UserDefinedPaper3
+    | UserDefinedPaper4
+    | UserDefinedPaper5
     deriving (Show, Enum, Eq)
 
 makeLenses ''CommonOptions
@@ -181,19 +214,19 @@ numCopies' :: (Monad m, Foldable t) => t Int -> PrintMethodBuilderT m ()
 numCopies' = traverse_ numCopies
 
 -- |An action which specifies if you want to sort your papers.
-doSort :: Monad m => Bool -> PrintMethodBuilderT m ()
+doSort :: Monad m => Maybe Bool -> PrintMethodBuilderT m ()
 doSort = setParam colt
 
 -- |Alternative variant of 'doSort'.
-doSort' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+doSort' :: (Monad m, Foldable t) => t (Maybe Bool) -> PrintMethodBuilderT m ()
 doSort' = traverse_ doSort
 
 -- |An action which specifies if you want to print on the both sides.
-onBothSides :: Monad m => Bool -> PrintMethodBuilderT m ()
+onBothSides :: Monad m => Maybe Duplex -> PrintMethodBuilderT m ()
 onBothSides = setParam dup
 
 -- |Alternative variant of 'onBothSides'.
-onBothSides' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+onBothSides' :: (Monad m, Foldable t) => t (Maybe Duplex) -> PrintMethodBuilderT m ()
 onBothSides' = traverse_ onBothSides
 
 -- |An action which specifies a colour mode.
@@ -205,19 +238,19 @@ colourMode' :: (Monad m, Foldable t) => t Colour -> PrintMethodBuilderT m ()
 colourMode' = traverse_ colourMode
 
 -- |An action which specifies if you want to staple your documents.
-withStaple :: Monad m => Bool -> PrintMethodBuilderT m ()
+withStaple :: Monad m => Maybe Staple -> PrintMethodBuilderT m ()
 withStaple = setParam stpl
 
 -- |Alternative variant of 'withStaple'.
-withStaple' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+withStaple' :: (Monad m, Foldable t) => t (Maybe Staple) -> PrintMethodBuilderT m ()
 withStaple' = traverse_ withStaple
 
 -- |An action which specifies if you want to punch your documents.
-withPunch :: Monad m => Bool -> PrintMethodBuilderT m ()
+withPunch :: Monad m => Maybe Punch -> PrintMethodBuilderT m ()
 withPunch = setParam pnch
 
 -- |Alternative variant of 'withPunch'.
-withPunch' :: (Monad m, Foldable t) => t Bool -> PrintMethodBuilderT m ()
+withPunch' :: (Monad m, Foldable t) => t (Maybe Punch) -> PrintMethodBuilderT m ()
 withPunch' = traverse_ withPunch
 
 -- |An action which specifies an output tray.
@@ -237,19 +270,19 @@ inputTray' :: (Monad m, Foldable t) => t InputTray -> PrintMethodBuilderT m ()
 inputTray' = traverse_ inputTray
 
 -- |An action which specifies a size of papers.
-paperSize :: Monad m => PaperSize -> PrintMethodBuilderT m ()
+paperSize :: Monad m => Maybe PaperSize -> PrintMethodBuilderT m ()
 paperSize = setParam siz
 
 -- |Alternative variant of 'paperSize'.
-paperSize' :: (Monad m, Foldable t) => t PaperSize -> PrintMethodBuilderT m ()
+paperSize' :: (Monad m, Foldable t) => t (Maybe PaperSize) -> PrintMethodBuilderT m ()
 paperSize' = traverse_ paperSize
 
 -- |An action which specifies a type of papers.
-paperType :: Monad m => PaperType -> PrintMethodBuilderT m ()
+paperType :: Monad m => Maybe PaperType -> PrintMethodBuilderT m ()
 paperType = setParam med
 
 -- |Alternative variant of 'paperType'.
-paperType' :: (Monad m, Foldable t) => t PaperType -> PrintMethodBuilderT m ()
+paperType' :: (Monad m, Foldable t) => t (Maybe PaperType) -> PrintMethodBuilderT m ()
 paperType' = traverse_ paperType
 
 -- |A helper for actions which specifies a parameter on 'PrintMethodBuilderT'.

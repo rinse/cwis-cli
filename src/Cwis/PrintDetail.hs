@@ -43,18 +43,42 @@ methodToDetail (SecurityPrint username password file (CommonOptions cpn colt dup
 numCopiesToDetail :: Int -> Int
 numCopiesToDetail = id
 
-doSortToDetail, onBothSidesToDetail :: Bool -> String
-doSortToDetail True  = "YES"
-doSortToDetail False = "NO"
+doSortToDetail :: Maybe Bool -> String
+doSortToDetail Nothing      = "NO"
+doSortToDetail (Just True)  = "ON"
+doSortToDetail (Just False) = "OFF"
 
-onBothSidesToDetail = doSortToDetail
+onBothSidesToDetail :: Maybe Duplex -> String
+onBothSidesToDetail Nothing          = "NO"
+onBothSidesToDetail (Just LongEdge)  = "DP"
+onBothSidesToDetail (Just ShortEdge) = "TB"
 
 colourToDetail :: Colour -> String
-colourToDetail ColourAuto = "Auto"
+colourToDetail ColourAuto    = "AUTO"
+colourToDetail MultiColoured = "CLR"
+colourToDetail MonoColoured  = "BW"
 
-withStapleToDetail, withPunchToDetail :: Bool -> String
-withStapleToDetail = doSortToDetail
-withPunchToDetail = doSortToDetail
+withStapleToDetail :: Maybe Staple -> String
+withStapleToDetail Nothing                 = "NO"
+withStapleToDetail (Just StapleUpperLeft)  = "UL"
+withStapleToDetail (Just StapleLowerLeft)  = "LL"
+withStapleToDetail (Just StapleUpperRight) = "UR"
+withStapleToDetail (Just StapleLowerRight) = "LR"
+withStapleToDetail (Just StapleTop2)       = "TD"
+withStapleToDetail (Just StapleBottom2)    = "BD"
+withStapleToDetail (Just StapleLeft2)      = "LD"
+withStapleToDetail (Just StapleRight2)     = "RD"
+
+withPunchToDetail :: Maybe Punch -> String
+withPunchToDetail Nothing             = "NO"
+withPunchToDetail (Just PunchTop2)    = "TD"
+withPunchToDetail (Just PunchBottom2) = "BD"
+withPunchToDetail (Just PunchLeft2)   = "LD"
+withPunchToDetail (Just PunchRight2)  = "RD"
+withPunchToDetail (Just PunchTop4)    = "TF"
+withPunchToDetail (Just PunchBottom4) = "BF"
+withPunchToDetail (Just PunchLeft4)   = "LF"
+withPunchToDetail (Just PunchRight4)  = "RF"
 
 outputTrayToDetail :: OutputTray -> String
 outputTrayToDetail OutputTray   = "MT"
@@ -68,11 +92,28 @@ inputTrayToDetail Tray3         = "T3"
 inputTrayToDetail Tray4         = "T4"
 inputTrayToDetail ManualFeed    = "SMH"
 
-paperSizeToDetail :: PaperSize -> String
-paperSizeToDetail SizeAuto = "NUL"
+paperSizeToDetail :: Maybe PaperSize -> String
+paperSizeToDetail Nothing              = "NUL"
+paperSizeToDetail (Just A3)            = "A3"
+paperSizeToDetail (Just B4)            = "B4"
+paperSizeToDetail (Just A4)            = "A4"
+paperSizeToDetail (Just B5)            = "B5"
+paperSizeToDetail (Just A5)            = "A5"
+paperSizeToDetail (Just SizeLetter)    = "LT"
+paperSizeToDetail (Just FoolscapFolio) = "FL"
+paperSizeToDetail (Just SizeLegal)     = "LG"
+paperSizeToDetail (Just I15)           = "I15"
+paperSizeToDetail (Just SizeLedger)    = "LD"
 
-paperTypeToDetail :: PaperType -> String
-paperTypeToDetail TypeAuto = "NUL"
+paperTypeToDetail :: Maybe PaperType -> String
+paperTypeToDetail Nothing                  = "NUL"
+paperTypeToDetail (Just NormalPaper)       = "NR"
+paperTypeToDetail (Just RecycledPaper)     = "RC"
+paperTypeToDetail (Just UserDefinedPaper1) = "U1"
+paperTypeToDetail (Just UserDefinedPaper2) = "U2"
+paperTypeToDetail (Just UserDefinedPaper3) = "U3"
+paperTypeToDetail (Just UserDefinedPaper4) = "U4"
+paperTypeToDetail (Just UserDefinedPaper5) = "U5"
 
 -- |Primitive arguments for printer.
 data PrintDetail = PrintDetail

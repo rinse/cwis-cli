@@ -104,13 +104,21 @@ data Colour = ColourAuto | MultiColoured | MonoColoured
 
 -- |Represents a staple mode.
 data Staple
-    = StapleUpperLeft
-    | StapleLowerLeft
-    | StapleUpperRight
-    | StapleLowerRight
+    -- |Staple in the top left corner.
+    = StapleTopLeft
+    -- |Staple in the bottom left corner.
+    | StapleBottomLeft
+    -- |Staple in the top right corner.
+    | StapleTopRight
+    -- |Staple in the bottom right corner.
+    | StapleBottomRight
+    -- |2 Staples in top.
     | StapleTop2
+    -- |2 Staples in bottom.
     | StapleBottom2
+    -- |2 Staples in the left side.
     | StapleLeft2
+    -- |2 Staples in the right side.
     | StapleRight2
     deriving (Read, Show, Enum, Eq)
 

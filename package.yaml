@@ -29,9 +29,12 @@ ghc-options:
 dependencies:
 - base >= 4.7 && < 5
 - bytestring >= 0.10
+- data-default >= 0.7
 - http-client >= 0.6
 - lens >= 4.17
+- mtl >= 2.2
 - optparse-applicative >= 0.14
+- QuickCheck >= 2.13
 - req >= 2.1
 - safe-exceptions >= 0.1
 - scalpel-core >= 0.6

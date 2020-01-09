@@ -1,78 +1,118 @@
-{-# LANGUAGE TemplateHaskell #-}
-
 module Cwis.Args
-    ( Args
-    , hostname
-    , nCopies
-    , username
-    , password
-    , filepath
+    ( Args (..)
     , argsParserInfo
     ) where
 
-import           Control.Lens
+import           Control.Lens        ((^.))
+import           Cwis.PrintMethod
+import           Data.Default        (def)
 import           Options.Applicative
 
 
--- $setup
--- >>> let args = Args "hostname" 1 "" "" ""
+data Args = Args String PrintMethod
+    deriving (Show, Eq)
 
-{- |Represents arguments that the application can take.
-    This is the interface which faces to the user.
-
-    Use 'Lens' operators to get the contents.
-
-    >>> args ^. hostname 
-    "hostname"
--}
-data Args = Args
-    { _hostname :: String   -- ^Hostname of a printer
-    , _nCopies  :: Int      -- ^The number of copies
-    , _username :: String   -- ^Username
-    , _password :: String   -- ^Password
-    , _filepath :: FilePath -- ^File to print
-    }
-makeLenses ''Args
-
--- |A parser info for 'Args'.
 argsParserInfo :: ParserInfo Args
-argsParserInfo =
-    withHelper argsParser `withInfo` "This is a cli interface for a printer."
-    where
-    withHelper = (helper <*>)
-    withInfo p = info p . progDesc
+argsParserInfo = (helper <*> argsParser) `withDesc` "This is a cli interface for a printer."
 
 argsParser :: Parser Args
 argsParser = Args
     <$> strOption hostnameMod
-    <*> option auto copiesMod
-    <*> strOption usernameMod
-    <*> strOption passwordMod
-    <*> strArgument fileMod
+    <*> printMethodParser
     where
     hostnameMod = mconcat
         [ long "hostname"
-        , help "the hostname of the printer"
+        , help "The hostname of the printer"
         ]
-    copiesMod = mconcat
-        [ long "copies"
-        , short 'n'
-        , value 1
-        , showDefault
-        , help "the number of copies"
-        ]
+
+printMethodParser :: Parser PrintMethod
+printMethodParser = subparser securityPrintMod
+    where
+    securityPrintMod = command "security-print" $
+        securityPrintParser `withDesc` "Commits security print which keeps your documents safe."
+
+withDesc :: Parser a -> String -> ParserInfo a
+withDesc p = info p . progDesc
+
+securityPrintParser :: Parser PrintMethod
+securityPrintParser = SecurityPrint
+    <$> strOption usernameMod
+    <*> strOption passwordMod
+    <*> strArgument filepathMod
+    <*> commonOptionsParser
+    where
     usernameMod = mconcat
         [ long "username"
         , short 'u'
-        , help "the username for security print"
+        , help "The username required when to print."
         ]
     passwordMod = mconcat
         [ long "password"
         , short 'p'
-        , help "the password for security print"
+        , help "The password required when to print."
         ]
-    fileMod = mconcat
+    filepathMod = mconcat
         [ metavar "FILE"
         , action "file"
-        , help "the file to print"
+        , help "The file to print."
+        ]
+
+commonOptionsParser :: Parser CommonOptions
+commonOptionsParser = CommonOptions
+    <$> option auto numCopiesMod
+    <*> optional (flag' True doSortMod)
+    <*> optional (option auto duplexMod)
+    <*> option auto colourModeMod
+    <*> optional (option auto stapleMod)
+    <*> optional (option auto punchMod)
+    <*> option auto outputTrayMod
+    <*> option auto inputTrayMod
+    <*> optional (option auto paperSizeMod)
+    <*> optional (option auto paperTypeMod)
+    where
+    numCopiesMod = mconcat
+        [ long "num-copies"
+        , short 'n'
+        , value $ def ^. numCopies
+        , help "Specifies the number of copies."
+        ]
+    doSortMod = mconcat
+        [ long "sort"
+        , help "Specifies if documents are sorted."
+        ]
+    duplexMod = mconcat
+        [ long "duplex"
+        , help "Specifies if documents are printed on the both side."
+        ]
+    colourModeMod = mconcat
+        [ long "colour-mode"
+        , long "color-mode"
+        , value $ def ^. colourMode
+        , help "Specifies the colour mode."
+        ]
+    stapleMod = mconcat
+        [ long "staple"
+        , help "Specifies the position of staples."
+        ]
+    punchMod = mconcat
+        [ long "punch"
+        , help "Specifies the position of punches."
+        ]
+    outputTrayMod = mconcat
+        [ long "output-tray"
+        , value $ def ^. outputTray
+        , help "Specifies which output tray to deliver."
+        ]
+    inputTrayMod = mconcat
+        [ long "input-tray"
+        , value $ def ^. inputTray
+        , help "Specifies which input tray to get papers."
+        ]
+    paperSizeMod = mconcat
+        [ long "paper-size"
+        , help "Specifies which size of papers."
+        ]
+    paperTypeMod = mconcat
+        [ long "paper-size"
+        , help "Specifies which type of papers."
         ]
